@@ -1,0 +1,16 @@
+{
+  "name": "avantri-iot-test",
+  "version": "1.0.0",
+  "description": "Server that takes data from a client and forwards it to another client",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Madhu",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.15.2",
+    "firebase": "^3.9.0",
+    "firebase-admin": "^4.2.1"
+  }
+}

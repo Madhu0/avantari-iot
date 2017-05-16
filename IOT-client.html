@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Real Time Data</title>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script type="text/javascript">
+    google.charts.load('current', {'packages':['line']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    var ws = new WebSocket("ws://localhost:8000/notifySubscribers");
+    ws.onopen = function(){
+      // console.log("connection established")
+    };
+    ws.onmessage = function(message){
+      // console.log("message", message);
+      dataArray.push([(new Date()).getTime(), parseInt(message.data)])
+      if (dataArray.length > 10) {
+        dataArray.shift();
+      }
+      drawChart();
+    }
+
+    ws.onclose = function(){
+      $('#error').text("Alas your connection is closed. Dont worry jus wait for some time")
+    }
+
+    var dataArray = [
+      [new Date().getTime(), 0],
+    ];
+
+    function drawChart() {
+
+      var data = new google.visualization.DataTable();
+
+      data.addColumn('number', 'Time');
+      data.addColumn('number', 'Reading');
+
+      data.addRows(dataArray);
+
+      var options = {
+        title: 'Sensor Readings',
+        legend: { position: 'bottom' }
+      };
+
+      var chart = new google.charts.Line(document.getElementById('chart'));
+
+      chart.draw(data, google.charts.Line.convertOptions(options));
+    }
+  </script>
+</head>
+<body>
+<style type="text/css">
+  .error-msg{
+    color: red;
+    margin-top: 5px;
+  }
+</style>
+<div id="chart"></div>
+<p id="error" class="error-msg"></p>
+</body>
+</html>

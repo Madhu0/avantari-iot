@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>You are here, LOL</title>
+  <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyBgzSDz8MXyADQeLRPPVbfhwwU3J1hJuJ4",
+      authDomain: "avantri-iot-project.firebaseapp.com",
+      databaseURL: "https://avantri-iot-project.firebaseio.com",
+      projectId: "avantri-iot-project",
+      storageBucket: "avantri-iot-project.appspot.com",
+      messagingSenderId: "566892669758"
+    };
+    firebase.initializeApp(config);
+    firebase.auth().onAuthStateChanged(function(user){
+      if (user) {
+        $("#start").show();
+        $('#login').hide();
+      } else {
+        $("#start").hide();
+        $('#login').show();
+        // if (ws && ws.close){
+        //   ws.close()
+        // }
+      }
+    });
+  </script>
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#start').hide();
+      $('#logout').hide();
+    })
+    var ws = '';
+    var login = function(){
+      var email = document.getElementById('email').value;
+      var password = document.getElementById('password').value;
+      firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // console.error(error);
+        $('#error').text(error.message);
+      });
+    }
+    var randomGenerator = function(){
+      if(firebase.auth().currentUser) {
+        $('#start-btn').prop('disabled', true);
+        var url = "ws://localhost:8000/sensedData";
+        ws = new WebSocket(url);
+        var interval = '';
+        ws.onopen = function(){
+          interval = setInterval(function(){
+            if (!firebase.auth().currentUser) {
+              ws.close();
+            } else {
+              var number = Math.floor(Math.random()*1000);
+              ws.send(number);
+              $('#reading').text("The last reading was " + number);
+              $('#reading').fadeIn(3000);
+            }
+            // console.log(number);
+          }, 3000);
+        };
+        ws.onmessage = function(message){
+          // console.log("Message from server:", message);
+        };
+        ws.onclose = function(){
+          // console.log("Alas! Connection close.");
+          $('#sock-error').text('Your connection is closed. sorry for the inconvenience')
+          clearInterval(interval);
+        }
+        ws.onerror = function(error) {
+          // body...
+          // console.error(error);
+        }
+      }
+    }
+
+    var logOut = function(){
+      firebase.auth().signOut();
+      $('#start-btn').prop('disabled', false);
+    }
+  </script>
+</head>
+<body>
+  <style type="text/css">
+    .centre-div{
+      position: absolute;
+      top: 40%;
+      left: 25%;
+    }
+    .long-btn{
+      width: 150px;
+      margin-right: 10px;
+    }
+    .error-msg{
+      color: red;
+      margin-top: 5px;
+    }
+    .reading{
+      font-size: 20px;
+      margin-top: 15px;
+    }
+  </style>
+  <div class="container centre-div">
+    <div class="form-inline">
+      <div id="login" class="form-group">
+        <label for="email">Email: </label>
+        <input type="text" id="email" placeholder="email" class="form-control" />
+        <label for="password">Password: </label>
+        <input type="password" id="password" placeholder="password" class="form-control" />
+        <button onclick="login()" class="btn btn-primary">Login</button>
+        <p id="error" class="error-msg"></p>
+      </div>
+    </div>
+    <div id="start" class="form-inline">
+      <button onclick="randomGenerator()" class="btn btn-primary long-btn" id="start-btn">Start -> </button>
+      <button onclick="logOut()" class="btn btn-secondary">LogOut</button>
+      <p id="reading" class="reading"></p>
+      <p id="sock-error" class="error-msg"></p>
+    </div>
+  </div>
+</body>
+</html>
