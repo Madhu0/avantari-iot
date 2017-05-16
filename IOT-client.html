@@ -8,7 +8,7 @@
     google.charts.load('current', {'packages':['line']});
     google.charts.setOnLoadCallback(drawChart);
 
-    var ws = new WebSocket("ws://localhost:8000/notifySubscribers");
+    var ws = new WebSocket("ws://ec2-35-167-137-245.us-west-2.compute.amazonaws.com:80/notifySubscribers");
     ws.onopen = function(){
       // console.log("connection established")
     };

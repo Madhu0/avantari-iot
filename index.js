@@ -66,8 +66,9 @@ app.ws('/notifySubscribers', function(ws, req){
   })
 })
 
-app.listen(8000);
+app.listen(80);
 
+console.log("server listening at port 80");
 
 
 // var io = require("socket.io").listen(app.listen(port));

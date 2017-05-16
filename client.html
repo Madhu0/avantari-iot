@@ -49,7 +49,7 @@
     var randomGenerator = function(){
       if(firebase.auth().currentUser) {
         $('#start-btn').prop('disabled', true);
-        var url = "ws://localhost:8000/sensedData";
+        var url = "ws://ec2-35-167-137-245.us-west-2.compute.amazonaws.com:80/sensedData";
         ws = new WebSocket(url);
         var interval = '';
         ws.onopen = function(){
